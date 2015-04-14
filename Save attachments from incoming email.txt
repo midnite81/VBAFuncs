@@ -1,0 +1,37 @@
+Private WithEvents Items As Outlook.Items
+
+Private Sub Application_Startup()
+  Dim olApp As Outlook.Application
+  Dim objNS As Outlook.NameSpace
+  Set olApp = Outlook.Application
+  Set objNS = olApp.GetNamespace("MAPI")
+  ' default local Inbox
+  Set Items = objNS.GetDefaultFolder(olFolderInbox).Items
+End Sub
+
+Private Sub Items_ItemAdd(ByVal item As Object)
+
+  On Error GoTo ErrorHandler
+  Dim itm As Outlook.MailItem
+  If TypeName(item) = "MailItem" Then
+    Set itm = item
+    
+    If InStr(itm.Subject, "payslip") > 0 Then
+ 
+   Dim objAtt As Outlook.Attachment
+    Dim saveFolder As String
+        saveFolder = "C:\Payslips"
+    For Each objAtt In itm.Attachments
+        objAtt.SaveAsFile saveFolder & "\" & objAtt.DisplayName
+    Next
+  
+    End If
+
+  End If
+ProgramExit:
+  Exit Sub
+ErrorHandler:
+  MsgBox Err.Number & " - " & Err.Description
+  Resume ProgramExit
+End Sub
+
